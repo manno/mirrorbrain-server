@@ -1,37 +1,50 @@
 package main
 
 import (
-	"libs/config"
 	"libs/database"
+	"libs/settings"
 	"log"
 	"net/http"
 	"os"
 	"path"
+	"strings"
 )
 
-const WebRoot = "/usr/share/pixmaps"
+var config = new(settings.Config)
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
-	var requestPath = path.Join(WebRoot, r.URL.Path)
-	log.Println(r.RemoteAddr, r.URL.Path, requestPath)
-	if _, err := os.Stat(requestPath); err == nil {
-		// TODO handle meta formats
-		// pos = strings.LastIndex(path, "meta4")
-		// if pos > -1 && pos == len(path) - 5
-		sendRedirect(w, r, path.Clean(r.URL.Path))
+	absPath := path.Join(config.WebRoot, r.URL.Path)
+	requestPath := path.Clean(r.URL.Path)
+
+	log.Println(r.RemoteAddr, requestPath, absPath)
+	// TODO handle meta formats
+	if isExtension("meta4", requestPath) {
+		log.Println("can't handle meta4")
+		http.Error(w, "not implemented yet", http.StatusInternalServerError)
+	} else if isExtension("torrent", requestPath) {
+		log.Println("can't handle torrent")
+		http.Error(w, "not implemented yet", http.StatusInternalServerError)
+	} else if isExtension("mirrorlist", requestPath) {
+		log.Println("can't handle mirrorlist")
+		http.Error(w, "not implemented yet", http.StatusInternalServerError)
+	} else if _, err := os.Stat(absPath); err == nil {
+		sendRedirect(w, r, requestPath)
 	} else {
 		http.NotFound(w, r)
 	}
 }
 
-func sendRedirect(w http.ResponseWriter, r *http.Request, path string) {
-	// TODO find server in database
-	//fmt.Fprintf(w, "%s", path)
-	http.Redirect(w, r, "http://otherhost"+path, http.StatusFound)
+func isExtension(extension string, requestPath string) bool {
+	pos := strings.LastIndex(requestPath, extension)
+	if pos > -1 && pos == len(requestPath)-len(extension) {
+		if requestPath[pos-1] == '.' || requestPath[pos-1] == '?' {
+			return true
+		}
+	}
+	return false
 }
 
 func main() {
-	config := new(config.Config)
 	config.Setup()
 
 	database.Connect(config)

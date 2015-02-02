@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"libs/config"
+	"libs/settings"
 	"log"
 )
 
 var db *sql.DB
 
-func Connect(config *config.Config) {
+func Connect(config *settings.Config) {
 	db = connectDatabase(config)
 }
 
@@ -33,7 +33,6 @@ func Exists(tableName string) bool {
 	var found bool
 	err := db.QueryRow(existsStmt, tableName).Scan(&found)
 	if err != nil {
-		log.Fatal(err)
 		return false
 	}
 	return found
@@ -46,7 +45,7 @@ func convertSqlString(nullStr sql.NullString) string {
 	return ""
 }
 
-func connectDatabase(config *config.Config) *sql.DB {
+func connectDatabase(config *settings.Config) *sql.DB {
 	connectionString := fmt.Sprintf("user=%s password=%s dbname=%s host=%s sslmode=disable", config.DbUser,
 		config.DbPassword, config.DbName, config.DbHost)
 	db, err := sql.Open("postgres", connectionString)
