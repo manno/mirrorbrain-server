@@ -4,7 +4,6 @@ import (
 	"libs/database"
 	"log"
 	"net/http"
-	"strings"
 )
 
 func sendRedirect(w http.ResponseWriter, r *http.Request, path string) {
@@ -34,18 +33,4 @@ func selectServer(servers database.Servers) database.Server {
 		}
 	}
 	return max
-}
-
-func removeSlash(path string) string {
-	if strings.Index(path, "/") == 0 {
-		return path[1:len(path)]
-	}
-	return path
-}
-
-func addTrailingSlash(host string) string {
-	if host[len(host)-1] != '/' {
-		return host + "/"
-	}
-	return host
 }

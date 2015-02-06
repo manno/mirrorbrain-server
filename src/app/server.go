@@ -13,8 +13,10 @@ import (
 var config = new(settings.Config)
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
-	absPath := path.Join(config.WebRoot, r.URL.Path)
+	absPath := webrootPath(config.WebRoot, r.URL.Path)
 	requestPath := path.Clean(r.URL.Path)
+
+	// TODO handle methods: head get propfind options?
 
 	log.Println(r.RemoteAddr, requestPath, absPath)
 	// TODO handle meta formats
@@ -27,6 +29,9 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	} else if isExtension("mirrorlist", requestPath) {
 		log.Println("can't handle mirrorlist")
 		http.Error(w, "not implemented yet", http.StatusInternalServerError)
+	} else if isDir(absPath) {
+		log.Println("Is dir!")
+		// TODO dir listing
 	} else if _, err := os.Stat(absPath); err == nil {
 		sendRedirect(w, r, requestPath)
 	} else {
@@ -34,6 +39,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// format request, i.e: ?meta4 or .torrent
 func isExtension(extension string, requestPath string) bool {
 	pos := strings.LastIndex(requestPath, extension)
 	if pos > -1 && pos == len(requestPath)-len(extension) {
