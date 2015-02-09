@@ -31,3 +31,7 @@ func isDir(path string) bool {
 	}
 	return fileInfo.IsDir()
 }
+
+func pathEqual(p1 string, p2 string) bool {
+	return path.Clean(p1) == path.Clean(p2)
+}

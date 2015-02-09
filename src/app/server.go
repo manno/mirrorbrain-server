@@ -1,5 +1,9 @@
 package main
 
+// TODO handle methods: head get propfind options?
+// TODO handle meta formats
+// TODO better handling of scoring (shuffle?)
+
 import (
 	"libs/database"
 	"libs/settings"
@@ -16,10 +20,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	absPath := webrootPath(config.WebRoot, r.URL.Path)
 	requestPath := path.Clean(r.URL.Path)
 
-	// TODO handle methods: head get propfind options?
-
 	log.Println(r.RemoteAddr, requestPath, absPath)
-	// TODO handle meta formats
 	if isExtension("meta4", requestPath) {
 		log.Println("can't handle meta4")
 		http.Error(w, "not implemented yet", http.StatusInternalServerError)
@@ -30,8 +31,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("can't handle mirrorlist")
 		http.Error(w, "not implemented yet", http.StatusInternalServerError)
 	} else if isDir(absPath) {
-		log.Println("Is dir!")
-		// TODO dir listing
+		printDirectoryList(w, absPath, requestPath)
 	} else if _, err := os.Stat(absPath); err == nil {
 		sendRedirect(w, r, requestPath)
 	} else {
