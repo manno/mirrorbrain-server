@@ -3,6 +3,7 @@ package main
 // TODO handle methods: head get propfind options?
 // TODO handle meta formats
 // TODO better handling of scoring (shuffle?)
+// TODO use https://github.com/abh/geoip
 
 import (
 	"libs/database"
@@ -22,14 +23,14 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(r.RemoteAddr, requestPath, absPath)
 	if isExtension("meta4", requestPath) {
-		log.Println("can't handle meta4")
-		http.Error(w, "not implemented yet", http.StatusInternalServerError)
+		// TODO set content type header: "application/metalink4+xml; charset=UTF-8"
+		printMeta4(w, requestPath)
 	} else if isExtension("torrent", requestPath) {
 		log.Println("can't handle torrent")
 		http.Error(w, "not implemented yet", http.StatusInternalServerError)
 	} else if isExtension("mirrorlist", requestPath) {
-		log.Println("can't handle mirrorlist")
-		http.Error(w, "not implemented yet", http.StatusInternalServerError)
+		// TODO sort mirrorlist?
+		printMirrorList(w, requestPath)
 	} else if isDir(absPath) {
 		printDirectoryList(w, absPath, requestPath)
 	} else if _, err := os.Stat(absPath); err == nil {

@@ -39,15 +39,6 @@ const defaultQuery = `SELECT id, identifier, region, country,
                            WHERE path = $1)::smallint[]) 
                       AND enabled AND status_baseurl AND score > 0`
 
-const hashQuery = `SELECT file_id, md5hex, sha1hex, sha256hex, 
-                          sha1piecesize, sha1pieceshex, btihhex, pgp, 
-			  zblocksize, zhashlens, zsumshex 
-			FROM hexhash 
-			WHERE file_id = (SELECT id FROM filearr WHERE path = $1) 
-			AND size = $2
-			AND mtime = $3
-			LIMIT 1`
-
 func FindServers(path string) (servers Servers, err error) {
 	rows, err := db.Query(defaultQuery, path)
 	if err != nil {
