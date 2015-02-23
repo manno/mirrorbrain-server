@@ -4,23 +4,17 @@ import (
 	"libs/database"
 )
 
-func ChooseServer(servers database.Servers) database.Server {
-	max := servers[0]
+func ChooseServer(requestIp string, servers database.Servers) database.Server {
+	geoInfo := GeoLookup(requestIp)
 
-	for _, server := range servers {
-		if server.Score > max.Score {
-			max = server
-		}
-	}
-	return max
+	prepareServerLists(geoInfo, servers)
+	return servers[0]
 }
 
-// TODO
-func prepareServerLists(servers database.Servers) {
-	// lookup geoip for request ip
-	// lookup as number for request ip
+// servers should not contain illegal entries (i.e. null values)
+func prepareServerLists(geoInfo *GeoInfo, servers database.Servers) {
+	//samePrefix := make([]database.Servers, 0, len(servers))
 	// iterate all servers and build lists
-	//  skip/handle null values from server list?
 	//  calculate distance: (int) ( sqrt( pow((lat - new->lat), 2) + pow((lng - new->lng), 2) ) * 1000 );
 	//  skip mirror because of file size
 	// TODO use search prio so redirect search doesn't build all lists
@@ -39,13 +33,24 @@ func prepareServerLists(servers database.Servers) {
 
 }
 
-func ServersInAsn(servers database.Servers, asn string) database.Servers {
+// func ServersInAsn(servers database.Servers, asn string) database.Servers {
 
-}
+// }
 
-func ServersInSameCountry(servers database.Servers, string country) database.Servers {
-}
-func ServersOnSameContinent(servers database.Servers) database.Servers {
-}
-func ServersOther(servers database.Servers) database.Servers {
+// func ServersInSameCountry(servers database.Servers, string country) database.Servers {
+// }
+// func ServersOnSameContinent(servers database.Servers) database.Servers {
+// }
+// func ServersOther(servers database.Servers) database.Servers {
+// }
+
+func maxScore(servers database.Servers) database.Server {
+	max := servers[0]
+
+	for _, server := range servers {
+		if server.Score > max.Score {
+			max = server
+		}
+	}
+	return max
 }

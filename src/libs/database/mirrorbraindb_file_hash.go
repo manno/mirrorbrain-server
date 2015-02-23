@@ -1,6 +1,9 @@
-package main
+package database
 
-import "log"
+import (
+	"database/sql"
+	"log"
+)
 
 type FileInfo struct {
 	Id            int
@@ -16,7 +19,7 @@ type FileInfo struct {
 	ZsumsHex      bool
 }
 
-const hashQuery = `SELECT file_id, md5hex, sha1hex, sha256hex, 
+const fileHashQuery = `SELECT file_id, md5hex, sha1hex, sha256hex, 
                           sha1piecesize, sha1pieceshex, btihhex, pgp, 
 			  zblocksize, zhashlens, zsumshex 
 			FROM hexhash 
@@ -25,8 +28,8 @@ const hashQuery = `SELECT file_id, md5hex, sha1hex, sha256hex,
 			AND mtime = $3
 			LIMIT 1`
 
-func SelectFileInfo(path string) (fileInfo FileInfo, err error) {
-	rows, err := db.Query(hashQuery, path)
+func SelectFileInfo(path string) (fileInfo *FileInfo, err error) {
+	rows, err := db.Query(fileHashQuery, path)
 	if err != nil {
 		log.Printf("%s", err)
 		return fileInfo, err
@@ -34,7 +37,7 @@ func SelectFileInfo(path string) (fileInfo FileInfo, err error) {
 	defer rows.Close()
 
 	rows.Next()
-	fileInfo, err := scanFileInfoRow(rows)
+	fileInfo, err = scanFileInfoRow(rows)
 	if err != nil {
 		log.Fatal("Failed to scan", err)
 	}
@@ -42,8 +45,8 @@ func SelectFileInfo(path string) (fileInfo FileInfo, err error) {
 	return fileInfo, err
 }
 
-func scanFileInfoRow(rows *sql.Rows) (fileInfo FileInfo, err error) {
-	if err := rows.Scan(
+func scanFileInfoRow(rows *sql.Rows) (fileInfo *FileInfo, err error) {
+	if err = rows.Scan(
 		&fileInfo.Id,
 		&fileInfo.Md5Hex,
 		&fileInfo.Sha1Hex,

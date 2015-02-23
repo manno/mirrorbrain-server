@@ -7,6 +7,7 @@ package main
 
 import (
 	"libs/database"
+	"libs/mirrorbrain"
 	"libs/settings"
 	"log"
 	"net/http"
@@ -54,6 +55,7 @@ func isExtension(extension string, requestPath string) bool {
 func main() {
 	config.Setup()
 
+	mirrorbrain.GeoSetup()
 	database.Connect(config)
 	defer database.Close()
 

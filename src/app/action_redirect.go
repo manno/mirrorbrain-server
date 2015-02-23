@@ -2,6 +2,7 @@ package main
 
 import (
 	"libs/database"
+	"libs/mirrorbrain"
 	"log"
 	"net/http"
 )
@@ -23,7 +24,7 @@ func sendRedirect(w http.ResponseWriter, r *http.Request, path string) {
 		return
 	}
 	dumpServers(servers)
-	server := mirrorbrain.ChooseServer(servers)
+	server := mirrorbrain.ChooseServer(r.RemoteAddr, servers)
 	http.Redirect(w, r, addTrailingSlash(server.BaseUrl)+path, http.StatusFound)
 }
 

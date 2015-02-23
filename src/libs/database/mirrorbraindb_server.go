@@ -26,7 +26,7 @@ type Server struct {
 
 type Servers []Server
 
-const defaultQuery = `SELECT id, identifier, region, country,
+const serversQuery = `SELECT id, identifier, region, country,
                              lat, lng, 
                              asn, prefix, score, baseurl, 
                              region_only, country_only, 
@@ -40,7 +40,7 @@ const defaultQuery = `SELECT id, identifier, region, country,
                       AND enabled AND status_baseurl AND score > 0`
 
 func FindServers(path string) (servers Servers, err error) {
-	rows, err := db.Query(defaultQuery, path)
+	rows, err := db.Query(serversQuery, path)
 	if err != nil {
 		log.Printf("%s", err)
 		return servers, err
@@ -52,6 +52,7 @@ func FindServers(path string) (servers Servers, err error) {
 		if err != nil {
 			log.Fatal("Failed to scan", err)
 		}
+		//  TODO skip invalid servers
 		servers = append(servers, server)
 	}
 
