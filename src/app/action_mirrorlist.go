@@ -1,6 +1,6 @@
 package main
 
-import "io"
+import "net/http"
 
 const mirrorlistTemplate = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -94,5 +94,5 @@ const mirrorlistTemplate = `
 </html>
 `
 
-func printMirrorList(w, requestPath) {
+func printMirrorList(w http.ResponseWriter, requestPath string) {
 }

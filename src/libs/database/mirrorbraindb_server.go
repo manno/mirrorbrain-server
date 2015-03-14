@@ -21,7 +21,7 @@ type Server struct {
 	ASOnly         bool
 	PrefixOnly     bool
 	OtherCountries string
-	FileMaxsize    int
+	FileMaxsize    int64
 }
 
 type Servers []Server

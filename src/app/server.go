@@ -34,8 +34,9 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 		printMirrorList(w, requestPath)
 	} else if isDir(absPath) {
 		printDirectoryList(w, absPath, requestPath)
-	} else if _, err := os.Stat(absPath); err == nil {
-		sendRedirect(w, r, requestPath)
+	} else if stat, err := os.Stat(absPath); err == nil {
+		requestFile := mirrorbrain.RequestFile{requestPath, stat}
+		sendRedirect(w, r, requestFile)
 	} else {
 		http.NotFound(w, r)
 	}

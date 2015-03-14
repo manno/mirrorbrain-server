@@ -4,22 +4,40 @@ import (
 	"libs/database"
 )
 
-func ChooseServer(requestIp string, servers database.Servers) database.Server {
-	geoInfo := GeoLookup(requestIp)
+type MirrorbrainServer struct {
+	database.Server
+	Distance int
+}
+type MirrorbrainServers []MirrorbrainServer
 
-	prepareServerLists(geoInfo, servers)
+func ChooseServer(requestFile RequestFile, requestIp string, servers database.Servers) database.Server {
+	geoInfo := GeoLookup(requestIp)
+	mirrorbrainServers := filterServers(requestFile, servers)
+	prepareServerLists(requestFile, geoInfo, mirrorbrainServers)
 	return servers[0]
 }
 
+func filterServers(requestFile RequestFile, servers database.Servers) (mirrorbrainServers MirrorbrainServers) {
+	for _, server := range servers {
+		//  skip mirror because of server.FileMaxsize
+		if server.FileMaxsize >= requestFile.StatInfo.Size() {
+			var mbServer = MirrorbrainServer{server, 0}
+			mbServer.Distance = 123
+			//  calculate distance: (int) ( sqrt( pow((lat - new->lat), 2) + pow((lng - new->lng), 2) ) * 1000 );
+			mirrorbrainServers = append(mirrorbrainServers, mbServer)
+		}
+	}
+	return mirrorbrainServers
+}
+
 // servers should not contain illegal entries (i.e. null values)
-func prepareServerLists(geoInfo *GeoInfo, servers database.Servers) {
-	//samePrefix := make([]database.Servers, 0, len(servers))
+func prepareServerLists(requestFile RequestFile, geoInfo *GeoInfo, servers MirrorbrainServers) {
 	// iterate all servers and build lists
-	//  calculate distance: (int) ( sqrt( pow((lat - new->lat), 2) + pow((lng - new->lng), 2) ) * 1000 );
-	//  skip mirror because of file size
-	// TODO use search prio so redirect search doesn't build all lists
+
+	// TODO use search prio to exit early so redirect search doesn't build all lists
 	//  list: all
 	//  list: server with same prefix
+	//	  samePrefix := make([]database.Servers, 0, len(servers))
 	//  list: server in same AS
 	//  list: server in same country (wildcard country codes)
 	//  list: fallback country codes)

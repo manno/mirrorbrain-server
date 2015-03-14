@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func sendRedirect(w http.ResponseWriter, r *http.Request, path string) {
+func sendRedirect(w http.ResponseWriter, r *http.Request, requestFile mirrorbrain.RequestFile) {
 	// TODO decline redirect for:
 	//   small files cfg->min_sie
 	//   excluded files cfg->exclude_filemask
@@ -17,14 +17,14 @@ func sendRedirect(w http.ResponseWriter, r *http.Request, path string) {
 	//   excluded user agent cfg->exclude_agents
 	// TODO since we don't send directly, what happens?
 
-	path = removeSlash(path)
+	path := requestFile.Path()
 	servers, err := database.FindServers(path)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	dumpServers(servers)
-	server := mirrorbrain.ChooseServer(r.RemoteAddr, servers)
+	server := mirrorbrain.ChooseServer(requestFile, r.RemoteAddr, servers)
 	http.Redirect(w, r, addTrailingSlash(server.BaseUrl)+path, http.StatusFound)
 }
 
