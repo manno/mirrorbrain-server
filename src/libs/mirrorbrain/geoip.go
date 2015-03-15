@@ -17,8 +17,8 @@ type GeoInfo struct {
 	CountryName   string
 	CountryCode   string
 	ContinentCode string
-	Latitude      float32
-	Longitude     float32
+	Latitude      float64
+	Longitude     float64
 	RegionCode    string
 	RegionName    string
 }
@@ -49,8 +49,8 @@ func GeoLookup(ip string) *GeoInfo {
 	geoInfo.CountryCode = geoIpRecord.CountryCode
 	geoInfo.CountryName = geoIpRecord.CountryName
 	geoInfo.ContinentCode = geoIpRecord.ContinentCode
-	geoInfo.Latitude = geoIpRecord.Latitude
-	geoInfo.Longitude = geoIpRecord.Longitude
+	geoInfo.Latitude = float64(geoIpRecord.Latitude)
+	geoInfo.Longitude = float64(geoIpRecord.Longitude)
 	geoInfo.RegionCode = geoIpRecord.Region
 	//geoInfo.RegionName = geoIP.GetRegionName(geoIpRecord.CountryCode, geoIpRecord.Region)
 

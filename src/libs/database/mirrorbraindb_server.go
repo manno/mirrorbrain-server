@@ -10,8 +10,8 @@ type Server struct {
 	Identifier     string
 	Reqion         string
 	Country        string
-	Lat            float32
-	Lng            float32
+	Lat            float64
+	Lng            float64
 	Asn            int
 	Prefix         string
 	Score          int

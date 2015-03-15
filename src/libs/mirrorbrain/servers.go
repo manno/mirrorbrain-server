@@ -2,17 +2,27 @@ package mirrorbrain
 
 import (
 	"libs/database"
+	"math"
 )
 
 type MirrorbrainServer struct {
 	database.Server
-	Distance int
+	Distance int64
 }
 type MirrorbrainServers []MirrorbrainServer
+
+func (mirrorbrainServers MirrorbrainServers) CalculateDistance(geoInfo *GeoInfo) {
+	for i := range mirrorbrainServers {
+		mbServer := &mirrorbrainServers[i]
+		mbServer.Distance = int64(math.Sqrt(math.Pow((mbServer.Lat-geoInfo.Latitude), 2)+math.Pow((mbServer.Lng-geoInfo.Longitude), 2)) * 1000)
+	}
+}
 
 func ChooseServer(requestFile RequestFile, requestIp string, servers database.Servers) database.Server {
 	geoInfo := GeoLookup(requestIp)
 	mirrorbrainServers := filterServers(requestFile, servers)
+	mirrorbrainServers.CalculateDistance(geoInfo)
+
 	prepareServerLists(requestFile, geoInfo, mirrorbrainServers)
 	return servers[0]
 }
@@ -22,8 +32,6 @@ func filterServers(requestFile RequestFile, servers database.Servers) (mirrorbra
 		//  skip mirror because of server.FileMaxsize
 		if server.FileMaxsize >= requestFile.StatInfo.Size() {
 			var mbServer = MirrorbrainServer{server, 0}
-			mbServer.Distance = 123
-			//  calculate distance: (int) ( sqrt( pow((lat - new->lat), 2) + pow((lng - new->lng), 2) ) * 1000 );
 			mirrorbrainServers = append(mirrorbrainServers, mbServer)
 		}
 	}
