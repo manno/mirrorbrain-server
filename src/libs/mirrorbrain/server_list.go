@@ -21,20 +21,20 @@ func (serverList *ServerList) BuildServerLists(allServers MirrorbrainServers, ge
 		fmt.Println(server)
 		found := false
 
-		if server.Prefix == geoInfo.Prefix {
+		if geoInfo.Prefix != "" && server.Prefix == geoInfo.Prefix {
 			serverList.SamePrefix = append(serverList.SamePrefix, server)
 			found = true
 		}
-		if server.Asn == geoInfo.AS {
+		if geoInfo.AS != "" && server.Asn == geoInfo.AS {
 			serverList.SameAsn = append(serverList.SameAsn, server)
 			found = true
 		}
-		if server.Country == geoInfo.CountryName || server.HasWildcardCountry() {
+		if geoInfo.CountryName != "" && server.Country == geoInfo.CountryName || server.HasWildcardCountry() {
 			serverList.SameCountry = append(serverList.SameCountry, server)
 			found = true
 		}
 		//  TODO fallback country codes
-		if server.Region == geoInfo.RegionName && server.AcceptsForeign() {
+		if geoInfo.RegionName != "" && server.Region == geoInfo.RegionName && server.AcceptsForeign() {
 			serverList.SameRegion = append(serverList.SameRegion, server)
 			found = true
 		}
