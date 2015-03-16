@@ -36,7 +36,9 @@ func SelectFileInfo(path string) (fileInfo *FileInfo, err error) {
 	}
 	defer rows.Close()
 
-	rows.Next()
+	if !rows.Next() {
+		return nil, rows.Err()
+	}
 	fileInfo, err = scanFileInfoRow(rows)
 	if err != nil {
 		log.Fatal("Failed to scan", err)

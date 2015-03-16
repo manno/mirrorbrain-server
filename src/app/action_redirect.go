@@ -4,6 +4,7 @@ import (
 	"libs/database"
 	"libs/mirrorbrain"
 	"log"
+	"net"
 	"net/http"
 )
 
@@ -24,13 +25,22 @@ func sendRedirect(w http.ResponseWriter, r *http.Request, requestFile mirrorbrai
 		return
 	}
 	dumpServers(servers)
-	serverSelection := mirrorbrain.ChooseServer(requestFile, r.RemoteAddr, servers)
+	serverSelection := mirrorbrain.ChooseServer(requestFile, ExtractIP(r.RemoteAddr), servers)
 	if serverSelection.FoundIn != "" {
 		log.Println("Using server:", serverSelection)
 		http.Redirect(w, r, serverSelection.Chosen.RedirectUrl(path), http.StatusFound)
 	} else {
 		log.Println("No usable mirrors after classification for:", requestFile.Path())
 		http.NotFound(w, r)
+	}
+}
+
+func ExtractIP(remoteAddr string) string {
+	ip, _, err := net.SplitHostPort(remoteAddr)
+	if err == nil {
+		return ip
+	} else {
+		return remoteAddr
 	}
 }
 

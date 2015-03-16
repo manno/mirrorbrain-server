@@ -13,7 +13,10 @@ func SelectAsn(prefix string) (pfx string, asn string, err error) {
 	}
 	defer rows.Close()
 
-	rows.Next()
+	if !rows.Next() {
+		return "", "", rows.Err()
+	}
+
 	if err := rows.Scan(&pfx, &asn); err != nil {
 		log.Fatal("Failed to scan", err)
 	}

@@ -50,6 +50,7 @@ func GeoLookup(ip string) *GeoInfo {
 	// lookup geoip for request ip
 	geoIpRecord := geoIP.GetRecord(ip)
 	if geoIpRecord == nil {
+		log.Println("Failed to acquire GeoIP record for:", ip)
 		return geoInfo
 	}
 
