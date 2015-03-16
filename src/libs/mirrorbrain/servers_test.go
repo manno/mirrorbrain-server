@@ -17,9 +17,9 @@ func TestRequestFile(t *testing.T) {
 	}
 }
 
-func TestCalculateDistance(t *testing.T) {
+func TestPrepare(t *testing.T) {
 	mbServers := filterServers(createRequestFile(), createServers())
-	mbServers.CalculateDistance(createGeoInfo())
+	mbServers.Prepare(createGeoInfo())
 	fmt.Println(mbServers)
 }
 

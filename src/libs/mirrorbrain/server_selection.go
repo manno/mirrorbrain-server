@@ -10,9 +10,7 @@ type ServerSelection struct {
 func ChooseServer(requestFile RequestFile, requestIp string, servers database.Servers) ServerSelection {
 	geoInfo := GeoLookup(requestIp)
 	mirrorbrainServers := filterServers(requestFile, servers)
-	if geoInfo.HasCoords() {
-		mirrorbrainServers.CalculateDistance(geoInfo)
-	}
+	mirrorbrainServers.Prepare(geoInfo)
 
 	// TODO smarter lists?
 	//serverList := ServerList{SamePrefix: make([]MirrorbrainServer, 0, len(mirrorbrainServers))}

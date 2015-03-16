@@ -25,6 +25,10 @@ func (server MirrorbrainServer) HasCoords() bool {
 	return server.Lat != 0 && server.Lng != 0
 }
 
+func (server MirrorbrainServer) CalculateDistance(geoInfo *GeoInfo) {
+	server.Distance = int64(math.Sqrt(math.Pow((server.Lat-geoInfo.Latitude), 2)+math.Pow((server.Lng-geoInfo.Longitude), 2)) * 1000)
+}
+
 func (server MirrorbrainServer) HasWildcardCountry() bool {
 	return server.Country == "**"
 }
@@ -50,12 +54,12 @@ func addTrailingSlash(host string) string {
 
 type MirrorbrainServers []MirrorbrainServer
 
-func (servers MirrorbrainServers) CalculateDistance(geoInfo *GeoInfo) {
+func (servers MirrorbrainServers) Prepare(geoInfo *GeoInfo) {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range servers {
 		mbServer := &servers[i]
-		if mbServer.HasCoords() {
-			mbServer.Distance = int64(math.Sqrt(math.Pow((mbServer.Lat-geoInfo.Latitude), 2)+math.Pow((mbServer.Lng-geoInfo.Longitude), 2)) * 1000)
+		if mbServer.HasCoords() && geoInfo.HasCoords() {
+			mbServer.CalculateDistance(geoInfo)
 		}
 		if mbServer.Score < 1 {
 			mbServer.Score = 1
@@ -64,17 +68,6 @@ func (servers MirrorbrainServers) CalculateDistance(geoInfo *GeoInfo) {
 		mbServer.Rank = random.Intn(RAND_MAX) * (RAND_MAX / mbServer.Score)
 	}
 }
-
-// func (servers MirrorbrainServers) FindByMaxScore() MirrorbrainServer {
-//         max := servers[0]
-
-//         for _, server := range servers {
-//                 if server.Score > max.Score {
-//                         max = server
-//                 }
-//         }
-//         return max
-// }
 
 type ServersByDistance []MirrorbrainServer
 
