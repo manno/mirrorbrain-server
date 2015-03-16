@@ -8,11 +8,11 @@ import (
 type Server struct {
 	Id             int
 	Identifier     string
-	Reqion         string
+	Region         string
 	Country        string
 	Lat            float64
 	Lng            float64
-	Asn            int
+	Asn            string
 	Prefix         string
 	Score          int
 	BaseUrl        string
@@ -63,7 +63,7 @@ func scanServerRow(rows *sql.Rows) (server Server, err error) {
 	if err := rows.Scan(
 		&server.Id,
 		&server.Identifier,
-		&server.Reqion,
+		&server.Region,
 		&server.Country,
 		&server.Lat,
 		&server.Lng,

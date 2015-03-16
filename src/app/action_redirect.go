@@ -24,8 +24,8 @@ func sendRedirect(w http.ResponseWriter, r *http.Request, requestFile mirrorbrai
 		return
 	}
 	dumpServers(servers)
-	server := mirrorbrain.ChooseServer(requestFile, r.RemoteAddr, servers)
-	http.Redirect(w, r, addTrailingSlash(server.BaseUrl)+path, http.StatusFound)
+	serverSelection := mirrorbrain.ChooseServer(requestFile, r.RemoteAddr, servers)
+	http.Redirect(w, r, serverSelection.Chosen.RedirectUrl(path), http.StatusFound)
 }
 
 func dumpServers(servers database.Servers) {

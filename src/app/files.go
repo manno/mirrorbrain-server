@@ -9,13 +9,6 @@ func webrootPath(webRoot string, urlPath string) string {
 	return path.Join(webRoot, urlPath)
 }
 
-func addTrailingSlash(host string) string {
-	if host[len(host)-1] != '/' {
-		return host + "/"
-	}
-	return host
-}
-
 func isDir(path string) bool {
 	fileInfo, err := os.Stat(path)
 	if err != nil {

@@ -23,6 +23,10 @@ type GeoInfo struct {
 	RegionName    string
 }
 
+func (geoInfo GeoInfo) HasCoords() bool {
+	return geoInfo.Latitude != 0 && geoInfo.Longitude != 0
+}
+
 func GeoSetup() {
 	gi, err := geoip.Open(file)
 	if err != nil {
@@ -45,6 +49,7 @@ func GeoLookup(ip string) *GeoInfo {
 
 	// lookup geoip for request ip
 	geoIpRecord := geoIP.GetRecord(ip)
+	// TODO convervt empty values to --
 	geoInfo.CountryName = geoIpRecord.CountryName
 	geoInfo.CountryCode = geoIpRecord.CountryCode
 	geoInfo.CountryName = geoIpRecord.CountryName

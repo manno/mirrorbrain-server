@@ -3,80 +3,107 @@ package mirrorbrain
 import (
 	"libs/database"
 	"math"
+	"math/rand"
+	"time"
 )
+
+/* the smaller, the smaller the effect of a raised prio in comparison to distance */
+/* 5000000 -> mirror in 200km distance is preferred already when it has prio 100
+* 1000000 -> mirror in 200km distance is preferred not before it has prio 300
+* (compared to 100 as normal priority for other mirrors, and tested in
+* Germany, which is a small country with many mirrors) */
+const DISTANCE_PRIO = 2000000
+const RAND_MAX = 32767
 
 type MirrorbrainServer struct {
 	database.Server
 	Distance int64
+	Rank     int
 }
+
+func (server MirrorbrainServer) HasCoords() bool {
+	return server.Lat != 0 && server.Lng != 0
+}
+
+func (server MirrorbrainServer) HasWildcardCountry() bool {
+	return server.Country == "**"
+}
+
+func (server MirrorbrainServer) AcceptsForeign() bool {
+	return !server.CountryOnly && !server.ASOnly && !server.PrefixOnly
+}
+
+func (server MirrorbrainServer) Worldwide() bool {
+	return server.AcceptsForeign() && !server.RegionOnly
+}
+
+func (server MirrorbrainServer) RedirectUrl(path string) string {
+	return addTrailingSlash(server.BaseUrl) + path
+}
+
+func addTrailingSlash(host string) string {
+	if host[len(host)-1] != '/' {
+		return host + "/"
+	}
+	return host
+}
+
 type MirrorbrainServers []MirrorbrainServer
 
-func (mirrorbrainServers MirrorbrainServers) CalculateDistance(geoInfo *GeoInfo) {
-	for i := range mirrorbrainServers {
-		mbServer := &mirrorbrainServers[i]
-		mbServer.Distance = int64(math.Sqrt(math.Pow((mbServer.Lat-geoInfo.Latitude), 2)+math.Pow((mbServer.Lng-geoInfo.Longitude), 2)) * 1000)
-	}
-}
-
-func ChooseServer(requestFile RequestFile, requestIp string, servers database.Servers) database.Server {
-	geoInfo := GeoLookup(requestIp)
-	mirrorbrainServers := filterServers(requestFile, servers)
-	mirrorbrainServers.CalculateDistance(geoInfo)
-
-	prepareServerLists(requestFile, geoInfo, mirrorbrainServers)
-	return servers[0]
-}
-
-func filterServers(requestFile RequestFile, servers database.Servers) (mirrorbrainServers MirrorbrainServers) {
-	for _, server := range servers {
-		//  skip mirror because of server.FileMaxsize
-		if server.FileMaxsize >= requestFile.StatInfo.Size() {
-			var mbServer = MirrorbrainServer{server, 0}
-			mirrorbrainServers = append(mirrorbrainServers, mbServer)
+func (servers MirrorbrainServers) CalculateDistance(geoInfo *GeoInfo) {
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := range servers {
+		mbServer := &servers[i]
+		if mbServer.HasCoords() {
+			mbServer.Distance = int64(math.Sqrt(math.Pow((mbServer.Lat-geoInfo.Latitude), 2)+math.Pow((mbServer.Lng-geoInfo.Longitude), 2)) * 1000)
 		}
-	}
-	return mirrorbrainServers
-}
-
-// servers should not contain illegal entries (i.e. null values)
-func prepareServerLists(requestFile RequestFile, geoInfo *GeoInfo, servers MirrorbrainServers) {
-	// iterate all servers and build lists
-
-	// TODO use search prio to exit early so redirect search doesn't build all lists
-	//  list: all
-	//  list: server with same prefix
-	//	  samePrefix := make([]database.Servers, 0, len(servers))
-	//  list: server in same AS
-	//  list: server in same country (wildcard country codes)
-	//  list: fallback country codes)
-	//  list: same region (allows foreign country)
-	//  list: server elsewhere (allows foreign regions)
-	// fallback logic: same country empty? use fallback country
-	// fallback: empty list of all servers use cfg->fallbacks
-	// if geoip: best_method = closest
-	// else best_method = rank
-	// sort lists by method (same_prefix, same_as, same_country, same_region, elsewhere)
-
-}
-
-// func ServersInAsn(servers database.Servers, asn string) database.Servers {
-
-// }
-
-// func ServersInSameCountry(servers database.Servers, string country) database.Servers {
-// }
-// func ServersOnSameContinent(servers database.Servers) database.Servers {
-// }
-// func ServersOther(servers database.Servers) database.Servers {
-// }
-
-func maxScore(servers database.Servers) database.Server {
-	max := servers[0]
-
-	for _, server := range servers {
-		if server.Score > max.Score {
-			max = server
+		if mbServer.Score < 1 {
+			mbServer.Score = 1
 		}
+		/* rank it (randomized, weighted by "score" value) */
+		mbServer.Rank = random.Intn(RAND_MAX) * (RAND_MAX / mbServer.Score)
 	}
-	return max
+}
+
+// func (servers MirrorbrainServers) FindByMaxScore() MirrorbrainServer {
+//         max := servers[0]
+
+//         for _, server := range servers {
+//                 if server.Score > max.Score {
+//                         max = server
+//                 }
+//         }
+//         return max
+// }
+
+type ServersByDistance []MirrorbrainServer
+
+func (s ServersByDistance) Len() int {
+	return len(s)
+}
+
+func (s ServersByDistance) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s ServersByDistance) Less(i, j int) bool {
+	n := len(s)
+	distprio := DISTANCE_PRIO / n
+	a := int(s[i].Distance) + distprio/s[i].Score
+	b := int(s[j].Distance) + distprio/s[j].Score
+	return a < b
+}
+
+type ServersByRank []MirrorbrainServer
+
+func (s ServersByRank) Len() int {
+	return len(s)
+}
+
+func (s ServersByRank) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s ServersByRank) Less(i, j int) bool {
+	return s[i].Rank < s[j].Rank
 }
