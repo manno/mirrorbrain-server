@@ -25,7 +25,13 @@ func sendRedirect(w http.ResponseWriter, r *http.Request, requestFile mirrorbrai
 	}
 	dumpServers(servers)
 	serverSelection := mirrorbrain.ChooseServer(requestFile, r.RemoteAddr, servers)
-	http.Redirect(w, r, serverSelection.Chosen.RedirectUrl(path), http.StatusFound)
+	if serverSelection.FoundIn != "" {
+		log.Println("Using server:", serverSelection)
+		http.Redirect(w, r, serverSelection.Chosen.RedirectUrl(path), http.StatusFound)
+	} else {
+		log.Println("No usable mirrors after classification for:", requestFile.Path())
+		http.NotFound(w, r)
+	}
 }
 
 func dumpServers(servers database.Servers) {

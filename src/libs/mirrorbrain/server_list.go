@@ -14,7 +14,7 @@ type ServerList struct {
 	Elsewhere   MirrorbrainServers
 }
 
-func (serverList ServerList) BuildServerLists(allServers MirrorbrainServers, geoInfo *GeoInfo) {
+func (serverList *ServerList) BuildServerLists(allServers MirrorbrainServers, geoInfo *GeoInfo) {
 	serverList.All = allServers
 
 	for _, server := range allServers {
@@ -46,7 +46,7 @@ func (serverList ServerList) BuildServerLists(allServers MirrorbrainServers, geo
 	// fallback: empty list of all servers use cfg->fallbacks
 }
 
-func (serverList ServerList) SortByDistance() {
+func (serverList *ServerList) SortByDistance() {
 	sort.Sort(ServersByDistance(serverList.SamePrefix))
 	sort.Sort(ServersByDistance(serverList.SameAsn))
 	sort.Sort(ServersByDistance(serverList.SameCountry))
@@ -54,7 +54,7 @@ func (serverList ServerList) SortByDistance() {
 	sort.Sort(ServersByDistance(serverList.Elsewhere))
 }
 
-func (serverList ServerList) SortByRank() {
+func (serverList *ServerList) SortByRank() {
 	sort.Sort(ServersByRank(serverList.SamePrefix))
 	sort.Sort(ServersByRank(serverList.SameAsn))
 	sort.Sort(ServersByRank(serverList.SameCountry))

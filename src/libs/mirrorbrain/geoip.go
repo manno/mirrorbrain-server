@@ -7,7 +7,7 @@ import (
 	"github.com/abh/geoip"
 )
 
-var file = "/usr/share/GeoIP/GeoIP.dat"
+var file = "/usr/share/GeoIP/GeoIPCity.dat"
 var geoIP *geoip.GeoIP
 
 type GeoInfo struct {
@@ -49,6 +49,10 @@ func GeoLookup(ip string) *GeoInfo {
 
 	// lookup geoip for request ip
 	geoIpRecord := geoIP.GetRecord(ip)
+	if geoIpRecord == nil {
+		return geoInfo
+	}
+
 	// TODO convervt empty values to --
 	geoInfo.CountryName = geoIpRecord.CountryName
 	geoInfo.CountryCode = geoIpRecord.CountryCode

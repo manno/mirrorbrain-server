@@ -25,7 +25,7 @@ func (server MirrorbrainServer) HasCoords() bool {
 	return server.Lat != 0 && server.Lng != 0
 }
 
-func (server MirrorbrainServer) CalculateDistance(geoInfo *GeoInfo) {
+func (server *MirrorbrainServer) CalculateDistance(geoInfo *GeoInfo) {
 	server.Distance = int64(math.Sqrt(math.Pow((server.Lat-geoInfo.Latitude), 2)+math.Pow((server.Lng-geoInfo.Longitude), 2)) * 1000)
 }
 
