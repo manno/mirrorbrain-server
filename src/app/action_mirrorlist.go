@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"libs/database"
+	"libs/mirrorbrain"
+	"net/http"
+)
 
 const mirrorlistTemplate = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -95,5 +99,13 @@ const mirrorlistTemplate = `
 `
 
 // TODO sort mirrorlist?
-func printMirrorList(w http.ResponseWriter, requestPath string) {
+func printMirrorList(w http.ResponseWriter, r *http.Request, requestFile mirrorbrain.RequestFile) {
+	path := requestFile.Path()
+	servers, err := database.FindServers(path)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	mirrorbrain.CreateServerLists(requestFile, ExtractIP(r.RemoteAddr), servers)
+	fileInfo, err = database.SelectFileInfo(path)
 }

@@ -7,7 +7,7 @@ type ServerSelection struct {
 	FoundIn string
 }
 
-func ChooseServer(requestFile RequestFile, requestIp string, servers database.Servers) ServerSelection {
+func CreateServerLists(requestFile RequestFile, requestIp string, servers database.Servers) *ServerList {
 	geoInfo := GeoLookup(requestIp)
 	mirrorbrainServers := filterServers(requestFile, servers)
 	mirrorbrainServers.Prepare(geoInfo)
@@ -16,10 +16,15 @@ func ChooseServer(requestFile RequestFile, requestIp string, servers database.Se
 	//serverList := ServerList{SamePrefix: make([]MirrorbrainServer, 0, len(mirrorbrainServers))}
 	serverList := new(ServerList)
 
-	// TODO use search prio to exit early if only a redirect is required, don't build all lists
 	serverList.BuildServerLists(mirrorbrainServers, geoInfo)
+	return serverList
+}
 
-	// TODO only sort for metalink/mirrorlist
+func ChooseServer(requestFile RequestFile, requestIp string, servers database.Servers) ServerSelection {
+	// TODO use search prio to exit early if only a redirect is required, don't build all lists
+	serverList = CreateServerLists(requestFile, requestIp, servers)
+
+	// TODO only do full sort for metalink/mirrorlist, return best match otherwise
 	if geoInfo.HasCoords() {
 		serverList.SortByDistance()
 	} else {

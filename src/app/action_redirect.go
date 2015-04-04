@@ -27,15 +27,6 @@ func sendRedirect(w http.ResponseWriter, r *http.Request, requestFile mirrorbrai
 	}
 }
 
-func ExtractIP(remoteAddr string) string {
-	ip, _, err := net.SplitHostPort(remoteAddr)
-	if err == nil {
-		return ip
-	} else {
-		return remoteAddr
-	}
-}
-
 func dumpServers(servers database.Servers) {
 	for _, server := range servers {
 		log.Printf("%d %s (%s)\n", server.Score, server.Identifier, server.BaseUrl)
