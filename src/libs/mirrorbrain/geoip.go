@@ -35,34 +35,42 @@ func GeoSetup() {
 	geoIP = gi
 }
 
-// TODO ipv6
+// TODO support ipv6 address lookups
 func GeoLookup(ip string) *GeoInfo {
 	geoInfo := new(GeoInfo)
+	ip = "87.79.236.180"
 	geoInfo.RequestIp = ip
 
-	// lookup as number for request ip
+	// lookup autonomous system number for request ip
 	pfx, as, err := database.SelectAsn(ip)
 	if err != nil {
 		geoInfo.AS = as
 		geoInfo.Prefix = pfx
 	}
 
-	// lookup geoip for request ip
+	// lookup geo information for ip
 	geoIpRecord := geoIP.GetRecord(ip)
 	if geoIpRecord == nil {
 		log.Println("Failed to acquire GeoIP record for:", ip)
 		return geoInfo
 	}
 
-	// TODO convervt empty values to --
-	geoInfo.CountryName = geoIpRecord.CountryName
-	geoInfo.CountryCode = geoIpRecord.CountryCode
-	geoInfo.CountryName = geoIpRecord.CountryName
-	geoInfo.ContinentCode = geoIpRecord.ContinentCode
+	geoInfo.CountryName = fetch(geoIpRecord.CountryName)
+	geoInfo.CountryCode = fetch(geoIpRecord.CountryCode)
+	geoInfo.CountryName = fetch(geoIpRecord.CountryName)
+	geoInfo.ContinentCode = fetch(geoIpRecord.ContinentCode)
 	geoInfo.Latitude = float64(geoIpRecord.Latitude)
 	geoInfo.Longitude = float64(geoIpRecord.Longitude)
-	geoInfo.RegionCode = geoIpRecord.Region
+	geoInfo.RegionCode = fetch(geoIpRecord.Region)
 	//geoInfo.RegionName = geoIP.GetRegionName(geoIpRecord.CountryCode, geoIpRecord.Region)
 
 	return geoInfo
+}
+
+// convert empty values to -- because mirrorbrain does this, too
+func fetch(str string) string {
+	if str == nil {
+		return "--"
+	}
+	return str
 }

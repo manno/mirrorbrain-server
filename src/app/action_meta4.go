@@ -77,5 +77,6 @@ const meta4Template = `
 </metalink>
 `
 
+// TODO set content type header: "application/metalink4+xml; charset=UTF-8"
 func printMeta4(w io.Writer, path string) {
 }

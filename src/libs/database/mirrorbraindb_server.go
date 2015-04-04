@@ -24,6 +24,19 @@ type Server struct {
 	FileMaxsize    int64
 }
 
+func (server Server) Valid() bool {
+	if server.Score == nil {
+		return false
+	}
+	if server.BaseUrl == nil || server.BaseUrl == "" {
+		return false
+	}
+	if server.FileMaxsize == nil {
+		return false
+	}
+	return true
+}
+
 type Servers []Server
 
 const serversQuery = `SELECT id, identifier, region, country,
@@ -52,8 +65,9 @@ func FindServers(path string) (servers Servers, err error) {
 		if err != nil {
 			log.Fatal("Failed to scan", err)
 		}
-		//  TODO skip invalid servers
-		servers = append(servers, server)
+		if server.Valid {
+			servers = append(servers, server)
+		}
 	}
 
 	return servers, err

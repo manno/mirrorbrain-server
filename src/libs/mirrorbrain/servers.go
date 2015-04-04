@@ -2,7 +2,6 @@ package mirrorbrain
 
 import (
 	"libs/database"
-	"log"
 	"math"
 	"math/rand"
 	"time"
@@ -59,7 +58,6 @@ func (servers MirrorbrainServers) Prepare(geoInfo *GeoInfo) {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range servers {
 		mbServer := &servers[i]
-		log.Println(mbServer.HasCoords(), geoInfo.HasCoords())
 		if mbServer.HasCoords() && geoInfo.HasCoords() {
 			mbServer.CalculateDistance(geoInfo)
 		}

@@ -94,5 +94,6 @@ const mirrorlistTemplate = `
 </html>
 `
 
+// TODO sort mirrorlist?
 func printMirrorList(w http.ResponseWriter, requestPath string) {
 }

@@ -11,6 +11,7 @@ type Config struct {
 	WebRoot    string
 }
 
+// TODO read original mirrorbrain config and support more settings
 func (config *Config) Setup() {
 	config.BindPort = fetch("PORT", "8080")
 	config.DbName = fetch("DBNAME", "mirrorbrain")

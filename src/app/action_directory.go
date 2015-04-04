@@ -35,6 +35,7 @@ const fileIndexTemplate = `
 </html>
 `
 
+// TODO support WEBDAV propfind for better directory listings
 func printDirectoryList(w io.Writer, path string, requestPath string) {
 	if strings.Index(path, config.WebRoot) != 0 {
 		log.Fatal("directory listing outside webroot requested")

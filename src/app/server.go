@@ -1,10 +1,5 @@
 package main
 
-// TODO handle methods: head get propfind options?
-// TODO handle meta formats
-// TODO better handling of scoring (shuffle?)
-// TODO use https://github.com/abh/geoip
-
 import (
 	"libs/database"
 	"libs/mirrorbrain"
@@ -18,19 +13,28 @@ import (
 
 var config = new(settings.Config)
 
+// We do not support all mirrorbrain output formats. Specifically .torrent is missing
+//
+// TODO The redirector does not support declining redirects like the original does and isn't able to send files directly.
+//   * small files cfg->min_size and send file directly instead
+//   * excluded files cfg->exclude_filemask
+//   * excluded source ips cfg->exclude_ips
+//   * excluded network cfg->exclude_networks
+//   * excluded mime type cfg->exclude_mime
+//   * excluded user agent cfg->exclude_agents
+//
+// TODO handle all http methods: head get propfind options, how are they used in mirrorbrain?
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	absPath := webrootPath(config.WebRoot, r.URL.Path)
 	requestPath := path.Clean(r.URL.Path)
 
 	log.Println(r.RemoteAddr, requestPath, absPath)
 	if isExtension("meta4", requestPath) {
-		// TODO set content type header: "application/metalink4+xml; charset=UTF-8"
 		printMeta4(w, requestPath)
 	} else if isExtension("torrent", requestPath) {
 		log.Println("can't handle torrent")
 		http.Error(w, "not implemented yet", http.StatusInternalServerError)
 	} else if isExtension("mirrorlist", requestPath) {
-		// TODO sort mirrorlist?
 		printMirrorList(w, requestPath)
 	} else if isDir(absPath) {
 		printDirectoryList(w, absPath, requestPath)
