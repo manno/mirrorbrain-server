@@ -2,7 +2,7 @@ package mirrorbrain
 
 import (
 	"fmt"
-	"libs/database"
+	"github.com/manno/mirrorbrain-server/database"
 	"os"
 	"testing"
 )

@@ -1,7 +1,7 @@
 package mirrorbrain
 
 import (
-	"libs/database"
+	"github.com/manno/mirrorbrain-server/database"
 	"math"
 	"math/rand"
 	"time"

@@ -1,7 +1,7 @@
 package mirrorbrain
 
 import (
-	"libs/database"
+	"github.com/manno/mirrorbrain-server/database"
 	"log"
 
 	"github.com/abh/geoip"
@@ -38,7 +38,6 @@ func GeoSetup() {
 // TODO support ipv6 address lookups
 func GeoLookup(ip string) *GeoInfo {
 	geoInfo := new(GeoInfo)
-	ip = "87.79.236.180"
 	geoInfo.RequestIp = ip
 
 	// lookup autonomous system number for request ip

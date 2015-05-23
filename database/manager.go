@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"libs/settings"
+	"github.com/manno/mirrorbrain-server/settings"
 	"log"
 )
 

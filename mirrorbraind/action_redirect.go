@@ -1,8 +1,8 @@
 package main
 
 import (
-	"libs/database"
-	"libs/mirrorbrain"
+	"github.com/manno/mirrorbrain-server/database"
+	"github.com/manno/mirrorbrain-server/mirrorbrain"
 	"log"
 	"net"
 	"net/http"

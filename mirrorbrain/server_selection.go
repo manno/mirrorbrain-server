@@ -1,6 +1,6 @@
 package mirrorbrain
 
-import "libs/database"
+import "github.com/manno/mirrorbrain-server/database"
 
 type ServerSelection struct {
 	Chosen  MirrorbrainServer

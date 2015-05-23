@@ -1,11 +1,5 @@
 package main
 
-import (
-	"libs/database"
-	"libs/mirrorbrain"
-	"net/http"
-)
-
 const mirrorlistTemplate = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -17,20 +11,19 @@ const mirrorlistTemplate = `
 
 <body>
 <div id="mirrorbrain-details">
-  <h2>Mirrors for <a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4">31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4</a></h2>
+  <h2>Mirrors for <a href="{{.Url}}">{{.fileName}}</a></h2>
 <div id="mirrorbrain-fileinfo">
 <h3>File information</h3>
 <ul>
-  <li><span class="mirrorbrain-label">Filename:</span> 31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4</li>
-  <li><span class="mirrorbrain-label">Path:</span> /congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4</li>
-  <li><span class="mirrorbrain-label">Size:</span> 551M (577815354 bytes)</li>
-  <li><span class="mirrorbrain-label">Last modified:</span> Mon, 29 Dec 2014 14:13:19 GMT (Unix time: 1419862399)</li>
-  <li><span class="mirrorbrain-label"><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.sha256">SHA-256 Hash</a>:</span> <tt>e9b8d1ddb90c2a6ea3a4ca4ddb4c04f85f8f23a88de94f9b5b5648f449ee418a</tt></li>
-  <li><span class="mirrorbrain-label"><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.sha1">SHA-1 Hash</a>:</span> <tt>489f7cff021b19dab0878451d7c0b93fee724ef1</tt></li>
-  <li><span class="mirrorbrain-label"><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.md5">MD5 Hash</a>:</span> <tt>769c00c9a6463489762b0eceb5faa678</tt></li>
-  <li><span class="mirrorbrain-label"><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.btih">BitTorrent Information Hash</a>:</span> <tt>0e518f7cc66791a72d0f1baa215a32d38cbc9119</tt></li>
+  <li><span class="mirrorbrain-label">Filename:</span> {{.FileName}}</li>
+  <li><span class="mirrorbrain-label">Path:</span> {{.Path}}</li>
+  <li><span class="mirrorbrain-label">Size:</span> {{.SizeMB}} ({{.SizeBytes}})</li>
+  <li><span class="mirrorbrain-label">Last modified:</span> {{.LastModified}}</li>
+  <li><span class="mirrorbrain-label"><a href="{{.Url}}.sha256">SHA-256 Hash</a>:</span> <tt>{{.Sha256}}</tt></li>
+  <li><span class="mirrorbrain-label"><a href="{{.Url}}.sha1">SHA-1 Hash</a>:</span> <tt>{{.Sha1}}</tt></li>
+  <li><span class="mirrorbrain-label"><a href="{{.Url}}.md5">MD5 Hash</a>:</span> <tt>{{.Md5}}</tt></li>
 </ul>
-<p><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4" class="mirrorbrain-btn">Download file from preferred mirror</a></p>
+<p><a href="{{.Url}}" class="mirrorbrain-btn">Download file from preferred mirror</a></p>
 </div>
 
 <div id="mirrorbrain-links">
@@ -38,22 +31,15 @@ const mirrorlistTemplate = `
 <div class="mirrorbrain-links-grp">
 <h4>Metalink</h4>
 <ul>
-  <li><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.meta4">http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.meta4</a> (IETF Metalink)</li>
-  <li><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.metalink">http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.metalink</a> (old (v3) Metalink)</li>
-</ul>
-</div>
-<div class="mirrorbrain-links-grp">
-<h4>P2P links</h4>
-<ul>
-  <li><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.torrent">http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.torrent</a> (BitTorrent)</li>
-  <li><a href="http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.magnet">http://cdn.media.ccc.de/congress/2014/h264-hd/31c3-6264-de-en-Wir_beteiligen_uns_aktiv_an_den_Diskussionen_hd.mp4.magnet</a> (Magnet)</li>
+  <li><a href="{{.Url}}.meta4">{{.Url}}.meta4</a> (IETF Metalink)</li>
+  <li><a href="{{.Url}}.metalink">{{.Url}}.metalink</a> (old (v3) Metalink)</li>
 </ul>
 </div>
 </div>
 
 <div id="mirrorbrain-mirrors">
 <h3>Mirrors</h3>
-<p>List of best mirrors for IP address 78.34.65.52, located in Germany (DE), network 78.34.0.0/15 (autonomous system 8422).</p>
+<p>List of best mirrors for IP address {{.RequestIp}}, located in {{.RequestCountry}} ({{.RequestCountryCode}}), network {{.RequestNetwork}} (autonomous system {{.RequestAS}}).</p>
 
 <div class="mirrorbrain-mirrors-grp">
 <h4>Found 1 mirror very close (within the same autonomous system (AS8422)</h4>
@@ -97,15 +83,3 @@ const mirrorlistTemplate = `
 </body>
 </html>
 `
-
-// TODO sort mirrorlist?
-func printMirrorList(w http.ResponseWriter, r *http.Request, requestFile mirrorbrain.RequestFile) {
-	path := requestFile.Path()
-	servers, err := database.FindServers(path)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	mirrorbrain.CreateServerLists(requestFile, ExtractIP(r.RemoteAddr), servers)
-	fileInfo, err = database.SelectFileInfo(path)
-}
