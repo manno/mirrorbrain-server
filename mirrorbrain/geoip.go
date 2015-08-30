@@ -1,10 +1,9 @@
 package mirrorbrain
 
 import (
+	"github.com/manno/geoip"
 	"github.com/manno/mirrorbrain-server/database"
 	"log"
-
-	"github.com/abh/geoip"
 )
 
 var file = "/usr/share/GeoIP/GeoIPCity.dat"
